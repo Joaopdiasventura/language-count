@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 const GITHUB_API = "https://api.github.com";
 
 function normalizeLanguage(value) {
@@ -61,8 +63,20 @@ const LANGUAGE_COLORS_BY_NAME = Object.fromEntries(
   ]),
 );
 
-const SVG_FONT_STACK =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+const AZONIX_FONT_BASE64 = readFileSync(
+  new URL("../fonts/Azonix.otf", import.meta.url),
+).toString("base64");
+
+const SVG_FONT_FAMILY = "Azonix";
+const SVG_FONT_STACK = `'${SVG_FONT_FAMILY}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif`;
+const SVG_FONT_FACE_CSS = `
+@font-face {
+  font-family: '${SVG_FONT_FAMILY}';
+  src: url(data:font/otf;base64,${AZONIX_FONT_BASE64}) format('opentype');
+  font-style: normal;
+  font-weight: 400;
+}
+`.trim();
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -283,9 +297,9 @@ function getCardLayout(width, visibleCount) {
   const contentWidth = contentRight - contentLeft;
   const eyebrowSize = round(scaleValue(width, 280, 560, 8.8, 10.4));
   const titleSize = round(scaleValue(width, 280, 560, 18.5, 23.5));
-  const subtitleSize = round(scaleValue(width, 280, 560, 10.2, 12.2));
-  const labelSize = round(scaleValue(width, 280, 560, 11.6, 13.6));
-  const percentageSize = round(scaleValue(width, 280, 560, 11.1, 12.6));
+  const subtitleSize = round(scaleValue(width, 280, 560, 9.4, 11));
+  const labelSize = round(scaleValue(width, 280, 560, 10.8, 12.8));
+  const percentageSize = round(scaleValue(width, 280, 560, 10.2, 11.8));
   const topInset = round(scaleValue(width, 280, 560, 18, 22));
   const eyebrowY = cardY + topInset + eyebrowSize;
   const titleY = eyebrowY + round(scaleValue(width, 280, 560, 20, 23));
@@ -392,7 +406,7 @@ function buildRowSvg({ item, index, layout, disableAnimations }) {
   const labelMaxChars = estimateCharCapacity(
     layout.labelMaxWidth,
     layout.labelSize,
-    0.56,
+    0.86,
   );
   const label = truncateText(item.language, labelMaxChars);
   const beginMs = 110 + index * 70;
@@ -442,7 +456,7 @@ function createSvg({
   const subtitleLabel = username
     ? `GitHub code distribution for @${truncateText(
         username,
-        estimateCharCapacity(layout.contentWidth, layout.subtitleSize, 0.56),
+        estimateCharCapacity(layout.contentWidth, layout.subtitleSize, 0.98),
       )}`
     : "GitHub code distribution for your profile";
   const badgeWidth = Math.min(
@@ -451,7 +465,7 @@ function createSvg({
   );
   const messageLines = wrapText(
     state.message,
-    estimateCharCapacity(layout.contentWidth - 32, layout.subtitleSize, 0.59),
+    estimateCharCapacity(layout.contentWidth - 32, layout.subtitleSize, 1.02),
     2,
   );
   const title = username
@@ -502,6 +516,9 @@ function createSvg({
 <svg width="${width}" height="${layout.height}" viewBox="0 0 ${width} ${layout.height}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cardTitle cardDesc" text-rendering="geometricPrecision" shape-rendering="geometricPrecision">
   <title id="cardTitle">${escapeXml(title)}</title>
   <desc id="cardDesc">${escapeXml(description)}</desc>
+  <style>
+    ${SVG_FONT_FACE_CSS}
+  </style>
   <defs>
     <linearGradient id="cardFill" x1="${layout.cardX}" y1="${layout.cardY}" x2="${layout.cardX + layout.cardWidth}" y2="${layout.cardY + layout.cardHeight}" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#0f0c0d"/>
