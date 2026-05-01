@@ -71,6 +71,7 @@ Objetivos centrais:
 - Filtro case-insensitive por linguagem
 - Controle da quantidade de linguagens exibidas
 - Controle da largura do card
+- Variantes de tema dark embutidas
 - Flag para desabilitar animações
 - Estados de erro seguros para embed de imagem
 - Cache compatível com Vercel
@@ -98,6 +99,7 @@ Para um card um pouco mais largo em README ou portfólio:
 | `hide` | string separada por vírgula | nenhum | `html,css,shell` | Linguagens adicionais a ocultar. O match é case-insensitive. |
 | `langs_count` | inteiro | `6` | `1-20` | Quantidade máxima de linguagens renderizadas. |
 | `card_width` | inteiro | `360` | `280-560` | Largura do card em pixels SVG. A altura é calculada automaticamente. |
+| `theme` | string | `red` | `red`, `blue`, `yellow`, `purple`, `green`, `white` | Seleciona uma variante dark derivada do card vermelho padrão. |
 | `disable_animations` | boolean | `false` | `true`, `false`, `1`, `0` | Desabilita a animação de entrada das linhas e barras. |
 
 ## Nota de Migração
@@ -110,7 +112,7 @@ Se você vem do `github-readme-stats` ou de widgets parecidos, o mapeamento conc
 | Limite de linguagens | `langs_count` | Equivalente atual ao conceito de “limit”. |
 | Ocultar linguagens | `hide` | Suportado hoje. |
 | Largura | `card_width` | Suportado hoje. |
-| Tema | Não disponível | A API pública atual não inclui troca de tema. |
+| Tema | `theme` | Suporta `red`, `blue`, `yellow`, `purple`, `green` e `white`. |
 | Desligar animação | `disable_animations` | Suportado hoje. |
 
 ## Exemplos de Uso
@@ -147,6 +149,17 @@ https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&hide=Html,CSS
 https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&card_width=480
 ```
 
+### Variantes de tema
+
+```text
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=red
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=blue
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=yellow
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=purple
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=green
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=white
+```
+
 ### Renderização estática para ambientes sem movimento
 
 ```text
@@ -157,6 +170,12 @@ https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&disable_anima
 
 ```text
 https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=8&hide=html,css&card_width=420&disable_animations=true
+```
+
+### Exemplo combinado com tema
+
+```text
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=blue&langs_count=7&hide=html,css&card_width=440
 ```
 
 ## Integração com GitHub README
@@ -294,6 +313,8 @@ Elementos renderizados:
 
 O conteúdo decorativo também é clipado ao shape do card para evitar qualquer vazamento visual além do container arredondado.
 
+As cores de tema são resolvidas por uma camada centralizada de paleta. O tema vermelho continua sendo a variante base, e os demais temas reaproveitam a mesma geometria, animação, contraste e profundidade, trocando apenas gradientes derivados do accent, bordas, glows e highlights secundários.
+
 ## Sistema de Animações
 
 O projeto usa animações SMIL discretas para manter o SVG autocontido.
@@ -314,7 +335,7 @@ Comportamento atual:
 | README de perfil no GitHub | Suportado | Funciona com imagem Markdown padrão. |
 | Portfólio pessoal | Suportado | Pode ser usado com Markdown ou `<img>`. |
 | Ambientes que preferem imagem estática | Suportado | Use `disable_animations=true`. |
-| Troca de tema por query param | Não suportado | A API pública foi mantida fixa. |
+| Troca de tema por query param | Suportado | Apenas variantes dark. |
 | Fonte customizada embutida | Suportado | O SVG incorpora `Azonix.otf` diretamente. |
 
 ## Estratégia de Cache
@@ -359,7 +380,7 @@ Para embeds de imagem, isso é importante: um fallback legível é melhor do que
 - Hoje o projeto considera apenas os primeiros 100 repositórios owner.
 - Repositórios de organização não entram, a menos que sejam diretamente do owner consultado.
 - Forks são ignorados de propósito.
-- O card não suporta temas customizados.
+- Apenas os temas embutidos `red`, `blue`, `yellow`, `purple`, `green` e `white` são suportados.
 - O visual atual é dark-only.
 - O card é baseado em bytes de linguagem do GitHub, não em linhas de código ou prioridade de projeto.
 - Mesmo com `GITHUB_TOKEN`, a enumeração de repositórios continua usando o endpoint público `/users/{username}/repos`.

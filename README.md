@@ -71,6 +71,7 @@ Key goals:
 - Case-insensitive language hiding
 - Adjustable number of displayed languages
 - Adjustable card width
+- Built-in dark theme variants
 - Optional animation disable flag
 - Graceful image-safe error states
 - Built-in caching for Vercel edge reuse
@@ -98,6 +99,7 @@ If you want a slightly wider card for portfolio or profile README layouts:
 | `hide`               | comma-separated string | none    | `html,css,shell`          | Additional languages to exclude. Matching is case-insensitive. |
 | `langs_count`        | integer                | `6`     | `1-20`                    | Maximum number of languages rendered on the card.              |
 | `card_width`         | integer                | `360`   | `280-560`                 | Card width in SVG pixels. Height is computed automatically.    |
+| `theme`              | string                 | `red`   | `red`, `blue`, `yellow`, `purple`, `green`, `white` | Selects a dark theme variant derived from the default red card. |
 | `disable_animations` | boolean                | `false` | `true`, `false`, `1`, `0` | Disables row and bar entrance animations when enabled.         |
 
 ## Migration Notes
@@ -110,7 +112,7 @@ If you are coming from `github-readme-stats` or similar widgets, the closest con
 | Language limit   | `langs_count`        | This is the current equivalent of a “limit” control.     |
 | Hide languages   | `hide`               | Supported today.                                         |
 | Width            | `card_width`         | Supported today.                                         |
-| Theme            | Not available        | The current public API does not include theme switching. |
+| Theme            | `theme`              | Supports `red`, `blue`, `yellow`, `purple`, `green`, and `white`. |
 | Animation toggle | `disable_animations` | Supported today.                                         |
 
 ## Usage Examples
@@ -147,6 +149,17 @@ https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&hide=Html,CSS
 https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&card_width=480
 ```
 
+### Theme variants
+
+```text
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=red
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=blue
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=yellow
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=purple
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=green
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=white
+```
+
 ### Static rendering for environments that should avoid motion
 
 ```text
@@ -157,6 +170,12 @@ https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&disable_anima
 
 ```text
 https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=8&hide=html,css&card_width=420&disable_animations=true
+```
+
+### Combined theme example
+
+```text
+https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=blue&langs_count=7&hide=html,css&card_width=440
 ```
 
 ## GitHub README Integration
@@ -294,6 +313,8 @@ Rendered elements include:
 
 The renderer also clips decorative content to the card shape to prevent overflow beyond the rounded container.
 
+Theme colors are resolved from a centralized palette layer. The red theme remains the default source variant, and the other themes reuse the same layout, animation model, contrast rules, and depth system while swapping accent-driven gradients, glows, borders, and secondary highlights.
+
 ## Animation System
 
 Language Count uses restrained SMIL animation so the SVG remains self-contained.
@@ -314,7 +335,7 @@ Current animation behavior:
 | GitHub profile README                     | Supported     | Standard Markdown image usage works.   |
 | Portfolio sites                           | Supported     | Use Markdown or `<img>` embeds.        |
 | Static environments that prefer no motion | Supported     | Use `disable_animations=true`.         |
-| Theme parameter switching                 | Not supported | The public API is intentionally fixed. |
+| Theme parameter switching                 | Supported     | Uses dark variants only.               |
 | Embedded custom font                      | Supported     | The SVG embeds `Azonix.otf` directly.  |
 
 ## Cache Strategy
@@ -359,7 +380,7 @@ This is important for image embeds because a broken card is worse than a readabl
 - The project currently reads only the first 100 owner repositories.
 - Organization repositories are not included unless they are owned directly by the user account queried.
 - Forks are intentionally excluded.
-- The card does not support custom themes.
+- Only the built-in `red`, `blue`, `yellow`, `purple`, `green`, and `white` themes are supported.
 - The visual system is currently dark-only.
 - The card is based on GitHub language bytes, not lines of code or project importance.
 - Even with `GITHUB_TOKEN`, repository enumeration still targets the public `/users/{username}/repos` endpoint.
