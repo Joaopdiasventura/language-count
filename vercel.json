@@ -1,13 +1,13 @@
 {
   "functions": {
-    "api/index.mjs": {
+    "api/index.go": {
       "maxDuration": 10
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "api/index.mjs"
+      "dest": "/api/index"
     }
   ]
 }

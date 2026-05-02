@@ -1,445 +1,204 @@
 <div align="center">
 
-[![Vercel](https://img.shields.io/badge/Vercel-Serverless-black?logo=vercel)](https://vercel.com/)
+[![Vercel](https://img.shields.io/badge/Vercel-Go%20Function-black?logo=vercel)](https://vercel.com/)
 [![Saída](https://img.shields.io/badge/sa%C3%ADda-SVG%20card-a87770)](https://developer.mozilla.org/en-US/docs/Web/SVG)
 [![Fonte de dados](https://img.shields.io/badge/dados-GitHub%20API-181717?logo=github)](https://docs.github.com/en/rest)
-[![README Ready](https://img.shields.io/badge/integra%C3%A7%C3%A3o-GitHub%20README-24292f?logo=github)](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/managing-your-profile-readme)
-[![Licença](https://img.shields.io/badge/licen%C3%A7a-ISC-2d7ff9)](./package.json)
+[![Runtime](https://img.shields.io/badge/runtime-Go%20only-1f7a5c)](./api/)
+[![Licença](https://img.shields.io/badge/licen%C3%A7a-ISC-2d7ff9)](./LICENSE)
 
 </div>
 
 # Language Count
 
-Um card premium de linguagens do GitHub, orientado a README e implementado como uma única serverless function na Vercel.
-
-O Language Count foi pensado para quem quer uma alternativa mais refinada aos widgets genéricos de perfil: um endpoint, um resultado focado, parâmetros previsíveis, geometria SVG controlada e estados de fallback que continuam renderizando como imagem.
+Language Count é um card de linguagens do GitHub implementado em Go, com saída SVG determinística e um único endpoint HTTP. O deploy de produção é Go-only na Vercel.
 
 [English](./README.md)
 
-## Visão Geral
+## O Que O Projeto Faz
 
-O Language Count gera um card SVG dinâmico que resume a distribuição de linguagens de um perfil no GitHub, agregando os bytes de linguagem retornados pela GitHub API.
+O endpoint agrega os bytes de linguagem dos repositórios públicos de um perfil no GitHub e renderiza um card SVG pronto para README.
 
-O escopo é intencionalmente enxuto:
+Comportamentos preservados da versão anterior:
 
 - um endpoint público
-- um card visual
-- um modelo de dados baseado em bytes de linguagem
-- um formato de saída otimizado para README e portfólio
+- um único formato de saída SVG
+- mesmo contrato de parâmetros
+- mesmos estados de erro e fallback
+- mesma semântica de coleta na GitHub API
+- mesma política de cache
+- mesmo sistema de temas e animações
 
-O projeto se inspira visualmente no antigo card de linguagens do `github-readme-stats`, mas segue uma direção mais opinativa em apresentação, consistência de layout e qualidade dos estados de erro.
+## Uso
 
-## Demonstração
+Endpoint base:
 
-**Endpoint em produção**
-
-`https://language-count.joaopdias.dev.br/`
-
-**Exemplo real**
-
-`https://language-count.joaopdias.dev.br/?username=Joaopdiasventura`
-
-![Demonstração do Language Count](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=6&card_width=420)
-
-## Proposta do Projeto
-
-Muitos cards de linguagem resolvem apenas a parte dos dados. O Language Count trata o próprio SVG como superfície de produto.
-
-Objetivos centrais:
-
-- entregar um card visualmente sofisticado, e não um bloco que pareça gerado automaticamente
-- funcionar bem dentro das restrições de renderização do GitHub README
-- preservar legibilidade em larguras menores
-- evitar overflow, clipping e desalinhamento
-- manter uma interface pública pequena o suficiente para continuar estável
-
-## Diferenciais Principais
-
-| Área | Language Count |
-| --- | --- |
-| Tratamento visual | Estilo dark premium com hierarquia forte e acentos discretos |
-| Estratégia de layout | Espaçamento guiado por largura e clipping estrito para manter tudo dentro da viewport |
-| Tratamento de erro | Estados vazios, inválidos e indisponíveis continuam retornando um card SVG legível |
-| Alvo de integração | Otimizado para embeds em GitHub README e portfólio |
-| Filtros | Lista padrão de linguagens ocultas + `hide` customizado e case-insensitive |
-| Runtime | Uma única serverless function Vercel, sem JavaScript no cliente |
-
-## Recursos Suportados
-
-- Geração dinâmica de SVG
-- Agregação de linguagens de perfis GitHub
-- Filtro case-insensitive por linguagem
-- Controle da quantidade de linguagens exibidas
-- Controle da largura do card
-- Variantes de tema dark embutidas
-- Flag para desabilitar animações
-- Estados de erro seguros para embed de imagem
-- Cache compatível com Vercel
-- Comportamento amigável para README
-
-## Início Rápido
-
-O uso mínimo precisa apenas do nome de usuário do GitHub.
-
-```md
-![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)
+```text
+https://language-count.joaopdias.dev.br/
 ```
 
-Para um card um pouco mais largo em README ou portfólio:
-
-```md
-![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&card_width=420)
-```
-
-## Parâmetros de Query
-
-| Parâmetro | Tipo | Padrão | Faixa / Formato | Descrição |
-| --- | --- | --- | --- | --- |
-| `username` | string | nenhum | username do GitHub | Perfil analisado. Obrigatório. |
-| `hide` | string separada por vírgula | nenhum | `html,css,shell` | Linguagens adicionais a ocultar. O match é case-insensitive. |
-| `langs_count` | inteiro | `6` | `1-20` | Quantidade máxima de linguagens renderizadas. |
-| `card_width` | inteiro | `360` | `280-560` | Largura do card em pixels SVG. A altura é calculada automaticamente. |
-| `theme` | string | `red` | `red`, `blue`, `yellow`, `purple`, `green`, `white` | Seleciona uma variante dark derivada do card vermelho padrão. |
-| `disable_animations` | boolean | `false` | `true`, `false`, `1`, `0` | Desabilita a animação de entrada das linhas e barras. |
-
-## Nota de Migração
-
-Se você vem do `github-readme-stats` ou de widgets parecidos, o mapeamento conceitual mais próximo é:
-
-| Conceito | Language Count | Observação |
-| --- | --- | --- |
-| Username | `username` | Mesmo papel. |
-| Limite de linguagens | `langs_count` | Equivalente atual ao conceito de “limit”. |
-| Ocultar linguagens | `hide` | Suportado hoje. |
-| Largura | `card_width` | Suportado hoje. |
-| Tema | `theme` | Suporta `red`, `blue`, `yellow`, `purple`, `green` e `white`. |
-| Desligar animação | `disable_animations` | Suportado hoje. |
-
-## Exemplos de Uso
-
-### Card base
+Exemplo real:
 
 ```text
 https://language-count.joaopdias.dev.br/?username=Joaopdiasventura
 ```
 
-### Limitar a quantidade de linguagens visíveis
-
-Neste projeto, o controle de limite é feito por `langs_count`.
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=4
-```
-
-### Ocultar linguagens específicas
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&hide=html,css
-```
-
-### Filtros sem depender de casing
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&hide=Html,CSS
-```
-
-### Card mais largo para README ou portfólio
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&card_width=480
-```
-
-### Variantes de tema
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=red
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=blue
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=yellow
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=purple
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=green
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=white
-```
-
-### Renderização estática para ambientes sem movimento
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&disable_animations=true
-```
-
-### Exemplo combinado
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=8&hide=html,css&card_width=420&disable_animations=true
-```
-
-### Exemplo combinado com tema
-
-```text
-https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=blue&langs_count=7&hide=html,css&card_width=440
-```
-
-## Integração com GitHub README
-
-### Imagem em Markdown
+Embed para README:
 
 ```md
 ![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)
 ```
 
-### Imagem com link
+## Parâmetros de Query
 
-```md
-[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)](https://github.com/Joaopdiasventura)
-```
+| Parâmetro | Tipo | Padrão | Faixa / Formato | Observações |
+| --- | --- | --- | --- | --- |
+| `username` | string | nenhum | username do GitHub | Obrigatório. |
+| `hide` | string separada por vírgula | nenhum | `html,css,shell` | Case-insensitive. Estende a lista interna de linguagens ocultas. |
+| `langs_count` | inteiro | `6` | `1-20` | Máximo de linguagens renderizadas. |
+| `limit` | inteiro | nenhum | `1-20` | Alias legado. Tem precedência sobre `langs_count` quando não está vazio. |
+| `card_width` | inteiro | `360` | `280-560` | Largura do SVG em pixels. A altura é calculada pelo layout. |
+| `theme` | string | `red` | `red`, `blue`, `yellow`, `purple`, `green`, `white` | Case-insensitive. Valores inválidos caem para `red`. |
+| `disable_animations` | boolean | `false` | `true`, `false`, `1`, `0` | Só `true` e `1` desabilitam animação. |
 
-### HTML com largura explícita
+Parâmetros repetidos mantêm o primeiro valor, exatamente como na implementação legada.
 
-```html
-<img
-  src="https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&card_width=420"
-  alt="Most used languages for Joaopdiasventura"
-  width="420"
-/>
-```
-
-### Exemplo em Markdown com filtros
-
-```md
-![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&hide=html,css&langs_count=5)
-```
-
-## Funcionamento Interno
-
-O pipeline do Language Count é simples, mas intencional.
-
-1. Faz o parse e a normalização dos parâmetros.
-2. Monta o conjunto de linguagens ocultas.
-3. Busca os repositórios do usuário na GitHub REST API.
-4. Ignora forks.
-5. Busca o `languages_url` de cada repositório restante em paralelo.
-6. Agrega os bytes por linguagem.
-7. Remove linguagens ocultas.
-8. Calcula percentuais a partir do volume total de bytes.
-9. Ordena as linguagens de forma decrescente.
-10. Renderiza um SVG responsivo à largura e à quantidade de linhas.
-
-## Arquitetura da Serverless Function
-
-O projeto foi mantido propositalmente compacto:
+## Arquitetura de Produção
 
 ```text
 .
 ├─ api/
-│  └─ index.mjs
-├─ fonts/
-│  └─ Azonix.otf
-├─ package.json
-├─ vercel.json
-├─ README.md
-└─ README.pt-BR.md
+│  └─ index.go
+├─ cmd/
+│  └─ langcount/
+│     └─ main.go
+├─ internal/
+│  ├─ githubapi/
+│  ├─ httpapi/
+│  ├─ model/
+│  ├─ pipeline/
+│  ├─ svg/
+│  ├─ theme/
+│  └─ util/
+├─ go.mod
+└─ vercel.json
 ```
 
-### Modelo de runtime
+### Fluxo de requisição
 
-- Toda a superfície pública é atendida por `api/index.mjs`.
-- O `vercel.json` redireciona todas as rotas para a mesma function.
-- A function está configurada com `maxDuration: 10`.
-- Não existe camada de persistência.
-- O SVG não depende de build step no cliente.
-- A fonte do SVG é embutida a partir de `fonts/Azonix.otf` em runtime.
+1. Faz o parse dos parâmetros com as mesmas regras de normalização e clamp da versão JS.
+2. Busca `GET /users/{username}/repos?per_page=100&type=owner`.
+3. Ignora forks.
+4. Busca cada `languages_url` em paralelo, compartilhando o mesmo `context.Context`.
+5. Ignora respostas não-2xx por repositório sem derrubar a requisição inteira.
+6. Aborta a requisição em falhas de transporte ou decode, preservando a semântica de erro antiga.
+7. Agrega os bytes com desempate determinístico por ordem de repositório.
+8. Renderiza um SVG autocontido com a fonte Azonix embutida e gradientes por tema.
 
-## Pipeline de Coleta via GitHub API
+### Responsabilidade dos pacotes
 
-A implementação atual usa:
+- `internal/httpapi`: parse de query, seleção de estado, headers e tratamento de erro no topo.
+- `internal/githubapi`: cliente HTTP do GitHub, headers de upstream e decode ordenado de JSON.
+- `internal/pipeline`: filtros, coleta concorrente e agregação determinística.
+- `internal/svg`: matemática de layout, embed da fonte e montagem do SVG.
+- `internal/theme`: paletas e cores por linguagem.
+- `internal/util`: helpers compatíveis com o comportamento do JS em texto, matemática e cores.
 
-- `GET /users/{username}/repos?per_page=100&type=owner`
-- o `languages_url` de cada repositório
+## Garantias de Compatibilidade
 
-Comportamento importante:
+A migração foi tratada como troca de runtime, não como redesign de produto.
 
-- apenas repositórios do tipo owner entram no cálculo
-- forks são ignorados
-- hoje só a primeira página é considerada
-- o modelo é baseado nos bytes de linguagem retornados pelo GitHub
+Comportamentos preservados:
 
-Na prática, o card deve ser interpretado como **distribuição de bytes em repositórios públicos**, não como métrica de senioridade, domínio técnico ou relevância de projeto.
+- status codes
+- `Content-Type` e `Cache-Control` apenas em sucesso
+- estrutura do SVG e textos dos estados de fallback
+- semântica dos parâmetros, incluindo quirks de parsing
+- lista padrão de linguagens ocultas
+- seleção de tema e toggle de animação
+- leitura apenas da primeira página de repositórios
+- exclusão de forks
+- skip silencioso de `languages_url` com resposta não-2xx
 
-## Sistema de Filtros
+Melhoria determinística aplicada de forma consciente:
 
-O filtro combina duas camadas.
+- empates de bytes iguais agora são resolvidos pela ordem dos repositórios, e não pela ordem de conclusão das requests
 
-### Linguagens ocultas por padrão
+Esse foi o único ajuste de política aprovado no planejamento, para remover nondeterminismo sem alterar a semântica dos dados.
 
-Por padrão, o projeto já esconde linguagens mais ligadas a marcação, estilo ou infraestrutura, como:
+## Desenvolvimento
 
-- HTML
-- CSS
-- SCSS
-- Less
-- Blade
-- Dockerfile
-- Shell
-- Batchfile
-- PowerShell
-- Makefile
-
-### Lista customizada via `hide`
-
-O parâmetro `hide` estende esse conjunto.
-
-Exemplo:
-
-```text
-?username=Joaopdiasventura&hide=markdown,json
-```
-
-O match é case-insensitive.
-
-## Modelo de Renderização SVG
-
-O card não é um template estático. O renderer calcula a geometria com base na largura e na quantidade de linguagens.
-
-Elementos renderizados:
-
-- shell do card e sistema de bordas
-- bloco de header
-- linha divisória
-- grade de linhas
-- dots de linguagem
-- labels alinhadas
-- percentuais em coluna fixa
-- barras com limite máximo do layout
-- painel de estado vazio ou erro
-
-O conteúdo decorativo também é clipado ao shape do card para evitar qualquer vazamento visual além do container arredondado.
-
-As cores de tema são resolvidas por uma camada centralizada de paleta. O tema vermelho continua sendo a variante base, e os demais temas reaproveitam a mesma geometria, animação, contraste e profundidade, trocando apenas gradientes derivados do accent, bordas, glows e highlights secundários.
-
-## Sistema de Animações
-
-O projeto usa animações SMIL discretas para manter o SVG autocontido.
-
-Comportamento atual:
-
-- as linhas entram com fade e pequeno stagger
-- as barras crescem a partir de largura zero
-- a animação roda uma vez
-- não há loops infinitos
-- `disable_animations=true` gera o estado final estático
-
-## Compatibilidade
-
-| Alvo | Status | Observação |
-| --- | --- | --- |
-| Embeds remotos em GitHub README | Suportado | Alvo principal. |
-| README de perfil no GitHub | Suportado | Funciona com imagem Markdown padrão. |
-| Portfólio pessoal | Suportado | Pode ser usado com Markdown ou `<img>`. |
-| Ambientes que preferem imagem estática | Suportado | Use `disable_animations=true`. |
-| Troca de tema por query param | Suportado | Apenas variantes dark. |
-| Fonte customizada embutida | Suportado | O SVG incorpora `Azonix.otf` diretamente. |
-
-## Estratégia de Cache
-
-O endpoint responde com:
-
-```text
-Cache-Control: s-maxage=3600, stale-while-revalidate=86400
-```
-
-Na prática:
-
-- a Vercel pode reutilizar o resultado por até 1 hora
-- conteúdo stale pode continuar sendo servido enquanto a versão nova é regenerada
-- requisições repetidas ficam mais baratas do que recalcular o card a cada acesso
-
-## Performance
-
-O projeto é pequeno, mas há decisões explícitas de performance:
-
-- as buscas dos `languages_url` são executadas com `Promise.all`
-- o SVG é montado como string, sem runtime de navegador
-- largura e altura são calculadas com helpers matemáticos leves
-- a resposta é cacheável
-- um token opcional do GitHub ajuda a aliviar rate limits
-
-## Tratamento de Erros
-
-A function tenta sempre retornar um corpo SVG válido, mesmo quando a requisição ao GitHub falha.
-
-| Cenário | Status HTTP | Comportamento do card |
-| --- | --- | --- |
-| `username` ausente | `400` | Retorna um card SVG pedindo o parâmetro |
-| Usuário inexistente | `404` | Retorna um card SVG de perfil indisponível |
-| Rate limit / falha upstream | status do upstream | Retorna um card SVG de indisponibilidade |
-| Erro interno inesperado | `500` | Retorna um card SVG de erro de geração |
-
-Para embeds de imagem, isso é importante: um fallback legível é melhor do que uma imagem quebrada.
-
-## Limitações
-
-- Hoje o projeto considera apenas os primeiros 100 repositórios owner.
-- Repositórios de organização não entram, a menos que sejam diretamente do owner consultado.
-- Forks são ignorados de propósito.
-- Apenas os temas embutidos `red`, `blue`, `yellow`, `purple`, `green` e `white` são suportados.
-- O visual atual é dark-only.
-- O card é baseado em bytes de linguagem do GitHub, não em linhas de código ou prioridade de projeto.
-- Mesmo com `GITHUB_TOKEN`, a enumeração de repositórios continua usando o endpoint público `/users/{username}/repos`.
-- O repositório não possui suíte automatizada de testes.
-
-## Deploy na Vercel
-
-### Opção 1: Importar o repositório
-
-1. Crie um novo projeto na Vercel a partir do repositório.
-2. Adicione `GITHUB_TOKEN` se quiser maior resiliência contra rate limits.
-3. Faça o deploy.
-
-### Opção 2: Vercel CLI
+Servidor local em Go:
 
 ```bash
-npm install
-npx vercel
-npx vercel --prod
+go run ./cmd/langcount
 ```
 
-O `vercel.json` já mapeia todas as rotas para `api/index.mjs`.
-
-## Desenvolvimento Local
-
-### Pré-requisitos
-
-- Node.js 18 ou superior
-- Vercel CLI para emular a function localmente
-- `fonts/Azonix.otf` disponível no repositório
-
-### Executando localmente
-
-```bash
-npm install
-npx vercel dev
-```
-
-Depois acesse:
+URL local padrão:
 
 ```text
 http://localhost:3000/?username=Joaopdiasventura
 ```
 
-### Ideias de validação local
-
-- testar `langs_count=1`, `6`, `8` e `20`
-- testar larguras menores, como `280` e `320`
-- testar `hide=Html,CSS`
-- testar `disable_animations=true`
-- testar ausência de `username`
-- testar usuário inválido
-
-## Variáveis de Ambiente
+Variável de ambiente opcional:
 
 | Variável | Obrigatória | Descrição |
 | --- | --- | --- |
-| `GITHUB_TOKEN` | Não | Token opcional do GitHub para autenticar as requisições e reduzir problemas de rate limit. |
+| `GITHUB_TOKEN` | Não | Token opcional para autenticar chamadas na GitHub API. |
 
-## Licença
+## Validação e Testes
 
-Hoje o projeto está declarado como **ISC** em [`package.json`](./package.json).
+Suíte principal:
+
+```bash
+go test ./...
+```
+
+Suíte de regressão comportamental:
+
+```bash
+go test ./internal/httpapi -run TestAppScenarios -v
+```
+
+Checksums congelados de saídas representativas:
+
+```bash
+go test ./internal/httpapi -run TestRepresentativeGoldenChecksums -v
+```
+
+Benchmarks:
+
+```bash
+go test -run ^$ -bench . ./internal/pipeline ./internal/svg
+```
+
+Amostra de benchmark desta migração em `windows/amd64`:
+
+```text
+BenchmarkAggregateRepositoryLanguages-12    57764    21279 ns/op    5356 B/op    110 allocs/op
+BenchmarkCreateSVG-12                        6302   199596 ns/op  177367 B/op   1038 allocs/op
+```
+
+Race detector:
+
+```bash
+go test -race ./...
+```
+
+No ambiente local atual em Windows, esse comando não pôde rodar porque `gcc` não estava instalado.
+
+## Deploy
+
+`vercel.json` roteia todas as paths para o handler Go e preserva o limite original de `maxDuration: 10`.
+
+Deploy com dashboard ou CLI:
+
+```bash
+vercel
+vercel --prod
+```
+
+## Observações
+
+- O SVG continua autocontido e seguro para embed mesmo em estados de erro.
+- A fonte é embutida em startup com Go embed, sem leitura de disco por requisição.
+- O repositório agora é totalmente Go-only; o scaffolding legado da migração foi removido após o congelamento das saídas em testes.
