@@ -4,12 +4,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Joaopdiasventura/language-count/internal/httpapi"
+	languagecount "github.com/Joaopdiasventura/language-count"
 )
 
-var app = httpapi.NewApp(httpapi.Config{
-	AccessToken: os.Getenv("GITHUB_TOKEN"),
-})
+var app = languagecount.NewHTTPHandler(os.Getenv("GITHUB_TOKEN"))
 
 func Handler(w http.ResponseWriter, r *http.Request) {
 	app.ServeHTTP(w, r)

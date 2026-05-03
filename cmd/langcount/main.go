@@ -5,14 +5,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/Joaopdiasventura/language-count/internal/httpapi"
+	languagecount "github.com/Joaopdiasventura/language-count"
 )
 
 func main() {
 	addr := ":" + port()
-	app := httpapi.NewApp(httpapi.Config{
-		AccessToken: os.Getenv("GITHUB_TOKEN"),
-	})
+	app := languagecount.NewHTTPHandler(os.Getenv("GITHUB_TOKEN"))
 
 	log.Printf("language-count listening on %s", addr)
 	if err := http.ListenAndServe(addr, app); err != nil {
