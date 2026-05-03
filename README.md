@@ -48,6 +48,18 @@ README embed:
 ![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)
 ```
 
+Linked README embed:
+
+```md
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)](https://github.com/Joaopdiasventura)
+```
+
+More examples with `Joaopdiasventura`:
+
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=green)](https://github.com/Joaopdiasventura)
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=8&card_width=420)](https://github.com/Joaopdiasventura)
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=white&hide=html,css&disable_animations=true)](https://github.com/Joaopdiasventura)
+
 ## Query Parameters
 
 | Parameter | Type | Default | Range / Format | Notes |

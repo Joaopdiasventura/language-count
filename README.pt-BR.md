@@ -48,6 +48,18 @@ Embed para README:
 ![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)
 ```
 
+Embed com link para o perfil:
+
+```md
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura)](https://github.com/Joaopdiasventura)
+```
+
+Mais exemplos com `Joaopdiasventura`:
+
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=green)](https://github.com/Joaopdiasventura)
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&langs_count=8&card_width=420)](https://github.com/Joaopdiasventura)
+[![Most Used Languages](https://language-count.joaopdias.dev.br/?username=Joaopdiasventura&theme=white&hide=html,css&disable_animations=true)](https://github.com/Joaopdiasventura)
+
 ## Parâmetros de Query
 
 | Parâmetro | Tipo | Padrão | Faixa / Formato | Observações |
