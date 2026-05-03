@@ -1,4 +1,4 @@
-package languagecount
+package server
 
 import (
 	"net/http"
